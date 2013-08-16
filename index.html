@@ -10,19 +10,43 @@
 		* {
 			margin: 0;
 			padding: 0;
-			background-color: black;
 		}
 		
-		#text, canvas {
-			width: 1000px;
+		canvas {
+			position: relative;
 			display: block;
-			margin: 50px auto;
-			color: white;
+			margin: 0 auto;
+			z-index: 2;
 		}
+		.stripe {
+			width: 100%;
+			height: 150px;
+			display: block;
+			background-color: #F7B019;
+			z-index: -1;
+		}
+		.orange {
+			background-color: #FF6E00;
+		}
+		.blue {
+			background-color: #14C77A;
+		}
+		/*
+			yellowy: F7B019
+			grey: 999285
+			orange: FF6E00
+			blue: 40FFE0
+			green: 14C77A
+		*/
 	</style>
 </head>
 <body>
-	<div id="text">up</div>
-	<canvas id="c" width="1000" height="300" style="border: thin solid white; margin: 50px auto; display: block;"></canvas>
+	<div style="height: 300px; margin: 50px auto;">
+		<div style="position: absolute; width: 100%;">
+			<div class="stripe"></div>
+			<div class="orange stripe"></div>
+		</div>
+			<canvas id="c" width="1000" height="300"></canvas>
+	</div>
 </body>
 </html>

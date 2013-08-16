@@ -1,36 +1,78 @@
-var middle = 150;
+var middle = 150
+	,light_blue = "#40FFE0"
+	,grey = "#999285"
+	,yellowy = "#F7B019"
+	,orange = "#FF6E00"
+	,green = "#14C77A"
+;
 
 require([], function() {
-	var Pattern = function(distances) {
-		this.scroll = 0;
-		this.distances = distances;
+	var Ball = function(x, h) {
+		this.x = x;
+		this.y = middle + h * 30;
+		this.hit = false;
 	};
 
-	Pattern.prototype = {
+	Ball.prototype.checkHit = function(avatar) {
+		// TODO: Don't leak logic like this
+		var x =  300, y =  middle + avatar.nudged * 5,
+			dx = x - this.x, dy = y - this.y;
+		if (Math.sqrt(dx * dx + dy * dy) < 30) {
+			this.hit = true;
+		}
+	};
+
+	Ball.prototype.draw = function(ctx) {
+		var x = this.x, y = this.y;
+		ctx.fillStyle = this.hit ? green : "white";
+		ctx.beginPath();
+		ctx.moveTo(x + 25, y);
+		ctx.arc(x, y, 25, 0, Math.PI * 2);
+		ctx.fill();
+		/* IFDEF DEBUG
+		ctx.strokeStyle = "blue";
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(x, y);
+		ctx.stroke();
+		*/
+	};
+
+	var Slide = function(objs) {
+		this.objs = [];
+		this.add(objs);
+	};
+
+	Slide.prototype = {
 		draw: function(ctx) {
 			ctx.lineWidth = 3;
 			ctx.fillStyle = "black";
 			ctx.strokeStyle = "white";
 
-			var i = 0, x = -this.scroll, y;
-			ctx.beginPath();
-			ctx.moveTo(0, middle);
-			ctx.lineTo(1000, middle);
-
-			ctx.moveTo(this.scroll, middle);
-			for (; i < this.distances.length; i++) {
-				x += this.distances[i];
-				y = middle;
-				ctx.moveTo(x, y);
-				ctx.arc(x, y, 25, 0, Math.PI * 2);
-			} 
-			ctx.stroke();
-			ctx.fill();
+			this.objs.forEach(function(o) {
+				o.draw(ctx);
+			});
 		},
 		tick: function(t) {
-			this.scroll += t / 3;
-			this.scroll %= 1000;
-		}
+			var offscreen = 0;
+			this.objs.forEach(function(o) {
+				o.x -= t / 1000 * 200;
+				if (o.x <= -60) {
+					offscreen++;
+				}
+			});
+
+			this.objs = this.objs.slice(offscreen);
+		},
+		add: function(addme) {
+			var xs = this.objs.map(function(o) { return o.x; });
+			xs.push(1000);
+			var offset = Math.max.apply(null, xs);
+			addme.forEach(function(o) {
+				o.x += offset;
+				this.objs.push(o);
+			}, this);
+		},
 	};
 
 	var Thing = function() {
@@ -67,29 +109,34 @@ require([], function() {
 				this.nudged = 30 * sign;
 			}
 		},
-		nudge: function() {
-			this.v -= 3;
+		nudge: function(sign) {
+			this.v -=  sign * 2;
 		},
 	};
 
 	$(document).ready(function() {
-		var p = new Pattern([1000, 2090, 3000]);
-			f = new Thing(),
+		var s = new Slide([new Ball(0, 0), new Ball(60, 2)]),
+			player = new Thing(),
 			canvas = $('#c')[0],
 			ctx = canvas.getContext('2d'),
 			loop = function() {
-				p.tick(1000/60);
-				f.tick(1000/60);
-				ctx.clearRect(0, 0,	canvas.width, canvas.height);
-				p.draw(ctx);
-				f.draw(ctx);
 				setTimeout(loop, 1000/60);
+				s.tick(1000/60);
+				player.tick(1000/60);
+				s.objs.forEach(function(o) {
+					o.checkHit(player);
+				});
+				ctx.clearRect(0, 0,	canvas.width, canvas.height);
+				s.draw(ctx);
+				player.draw(ctx);
 			};
 
 			$('body')[0].onkeydown = function(e) {
 				var key = e.keyCode || e.which;
 				if (key == 0x26) {
-					f.nudge();
+					player.nudge(1);
+				} else if (key == 0x28) {
+					player.nudge(-1);
 				}
 			};
 
