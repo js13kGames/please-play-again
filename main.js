@@ -7,7 +7,25 @@ var middle = 150
 ;
 
 require([], function() {
+	var Text = function(x, value, ctx) {
+		this.x = x;
+		this.s = value;
+		this.style(ctx);
+		this.w = ctx.measureText(value).width;
+	};
+	Text.prototype.style = function(ctx) {
+		ctx.font = "40px sans-serif";
+		ctx.fillStyle = grey;
+	};
+	Text.prototype.draw = function(ctx) {
+		this.style(ctx);
+		ctx.fillText(this.s, this.x, middle - 25);
+	};
+
+	Text.prototype.checkHit = function(){};
+
 	var Ball = function(x, h) {
+		this.w = 50;
 		this.x = x;
 		this.y = middle + h * 30;
 		this.hit = false;
@@ -57,7 +75,7 @@ require([], function() {
 			var offscreen = 0;
 			this.objs.forEach(function(o) {
 				o.x -= t / 1000 * 200;
-				if (o.x <= -60) {
+				if (o.x <= -1 * o.w) {
 					offscreen++;
 				}
 			});
@@ -115,10 +133,10 @@ require([], function() {
 	};
 
 	$(document).ready(function() {
-		var s = new Slide([new Ball(0, 0), new Ball(60, 2)]),
-			player = new Thing(),
-			canvas = $('#c')[0],
+		var canvas = $('#c')[0],
 			ctx = canvas.getContext('2d'),
+			s = new Slide([new Ball(0, 0), new Ball(60, 2), new Text(100, "this is some text", ctx)]),
+			player = new Thing(),
 			loop = function() {
 				setTimeout(loop, 1000/60);
 				s.tick(1000/60);
