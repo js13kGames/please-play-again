@@ -7,7 +7,8 @@ var middle = 150
 ;
 
 require([], function() {
-	var Seq = function(objs) {
+	var Seq = function(objs, ongone) {
+		this.ongone = ongone;
 		this.objs = objs;
 		this.hit = 0;
 		this.x = 0;
@@ -183,8 +184,20 @@ require([], function() {
 	$(document).ready(function() {
 		var canvas = $('#c')[0],
 			ctx = canvas.getContext('2d'),
-			s = new Slide([new Seq([new Ball(0, 0), new Ball(60, 2), new Text(100, "this is some text", ctx)])]),
+			advance = function(done, slide) {
+				if (done) slide.add([seqs.shift()]);
+				else return done;
+			},
+			seqs = [new Seq([
+						new Ball(0, 0),
+						new Text(100, "now tap down", ctx),
+						new Ball(60, 2)],
+						advance),
+					 new Seq([
+						new Text(100, 'all done', ctx)])
+					],
 			player = new Thing(),
+			s = new Slide([seqs.shift()])
 			loop = function() {
 				setTimeout(loop, 1000/60);
 				s.tick(1000/60);
