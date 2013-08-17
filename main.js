@@ -7,6 +7,52 @@ var middle = 150
 ;
 
 require([], function() {
+	var Seq = function(objs) {
+		this.objs = objs;
+		this.hit = 0;
+		this.x = 0;
+		var last = objs[objs.length - 1];
+		this.w = last.x + last.w;
+		objs.forEach(function(o) {
+			o.x0 = o.x;
+			o.seq = this;
+		}, this);
+	};
+
+	Seq.prototype.tick = function(t) {
+	};
+
+	Seq.prototype.draw = function(ctx) {
+		this.objs.forEach(function(o) {
+			o.x = o.x0 + this.x;
+			o.draw(ctx);
+		}, this);
+	};
+
+	Seq.prototype.checkHit = function(avatar) {
+		this.remaining = 0;
+		this.objs.forEach(function(o) {
+			if (o.checkHit(avatar) === false) {
+				this.remaining++;
+			}
+		}, this);
+	};
+
+	Seq.prototype.gone = function(slide) {
+		if (this.remaining <= 0) {
+			if (this.ongone) {
+				this.ongone(true, slide);
+			}
+		} else {
+			if (this.ongone && !this.ongone(false, slide)) {
+				slide.add([this]);
+				this.objs.forEach(function(o) {
+					o.hit = false;
+				});
+			}
+		}
+	};
+
 	var Text = function(x, value, ctx) {
 		this.x = x;
 		this.s = value;
@@ -38,6 +84,7 @@ require([], function() {
 		if (Math.sqrt(dx * dx + dy * dy) < 30) {
 			this.hit = true;
 		}
+		return this.hit;
 	};
 
 	Ball.prototype.draw = function(ctx) {
@@ -64,21 +111,22 @@ require([], function() {
 	Slide.prototype = {
 		draw: function(ctx) {
 			ctx.lineWidth = 3;
-			ctx.fillStyle = "black";
-			ctx.strokeStyle = "white";
 
 			this.objs.forEach(function(o) {
 				o.draw(ctx);
 			});
 		},
 		tick: function(t) {
-			var offscreen = 0;
-			this.objs.forEach(function(o) {
+			var offscreen = 0, objs = this.objs.slice(0);
+			
+			objs.forEach(function(o) {
+				o.tick();
 				o.x -= t / 1000 * 200;
 				if (o.x <= -1 * o.w) {
 					offscreen++;
+					o.gone(this);
 				}
-			});
+			}, this);
 
 			this.objs = this.objs.slice(offscreen);
 		},
@@ -135,7 +183,7 @@ require([], function() {
 	$(document).ready(function() {
 		var canvas = $('#c')[0],
 			ctx = canvas.getContext('2d'),
-			s = new Slide([new Ball(0, 0), new Ball(60, 2), new Text(100, "this is some text", ctx)]),
+			s = new Slide([new Seq([new Ball(0, 0), new Ball(60, 2), new Text(100, "this is some text", ctx)])]),
 			player = new Thing(),
 			loop = function() {
 				setTimeout(loop, 1000/60);
