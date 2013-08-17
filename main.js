@@ -1,9 +1,9 @@
-var middle = 150
-	,light_blue = "#40FFE0"
-	,grey = "#999285"
-	,yellowy = "#F7B019"
-	,orange = "#FF6E00"
-	,green = "#14C77A"
+var middle = 150,
+	light_blue = "#40FFE0",
+	grey = "#999285",
+	yellowy = "#F7B019",
+	orange = "#FF6E00",
+	green = "#14C77A"
 ;
 
 require([], function() {
@@ -154,7 +154,7 @@ require([], function() {
 			ctx.beginPath();
 			x =  300;
 			y =  middle + this.nudged * 5;
-			ctx.moveTo(x + 10, y)
+			ctx.moveTo(x + 10, y);
 			ctx.arc(x, y, 10, 0, Math.PI * 2);
 			ctx.fill();
 		},
@@ -193,11 +193,11 @@ require([], function() {
 						new Text(100, "now tap down", ctx),
 						new Ball(60, 2)],
 						advance),
-					 new Seq([
+					new Seq([
 						new Text(100, 'all done', ctx)])
 					],
 			player = new Thing(),
-			s = new Slide([seqs.shift()])
+			s = new Slide([seqs.shift()]),
 			loop = function() {
 				setTimeout(loop, 1000/60);
 				s.tick(1000/60);
