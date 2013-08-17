@@ -6,8 +6,16 @@ var middle = 150,
 	green = "#14C77A"
 ;
 
+_ = {
+	extend: function(a, b) {
+		Object.keys(b).forEach(function(k) {
+			a[k] = b[k];
+		});
+	}
+};
+
 require([], function() {
-	var Seq = function(objs, ongone) {
+	var Seq = function(objs, ongone, props) {
 		this.ongone = ongone;
 		this.objs = objs;
 		this.hit = 0;
@@ -25,6 +33,9 @@ require([], function() {
 		}, this);
 
 		this.w = x;
+		if (props) {
+			_.extend(this, props);
+		}
 	};
 
 	Seq.prototype.tick = function(t) {
@@ -65,8 +76,9 @@ require([], function() {
 		}
 	};
 
-	var Text = function(x, value, ctx) {
+	var Text = function(x, value, ctx, offset) {
 		this.x = x;
+		this.y = middle + ((offset * 30) || -25);
 		this.s = value;
 		this.style(ctx);
 		this.w = ctx.measureText(value).width;
@@ -74,12 +86,12 @@ require([], function() {
 	Text.prototype = {
 		checkHit: function(){},
 		style: function(ctx) {
-			ctx.font = "40px sans-serif";
+			ctx.font = "1em sans-serif";
 			ctx.fillStyle = grey;
 		},
 		draw: function(ctx) {
 			this.style(ctx);
-			ctx.fillText(this.s, this.x, middle - 25);
+			ctx.fillText(this.s, this.x, this.y);
 		},
 	};
 
@@ -165,9 +177,38 @@ require([], function() {
 			},
 			seqs = [new Seq([
 						new Ball(0, 0),
-						new Text(100, "down", ctx),
-						new Ball(60, 2),
-						new Ball(60, -2.5)],
+						new Ball(260, 2),
+						new Ball(90, -2.5)],
+						advance),
+					new Seq([
+						new Ball(0, 5),
+						new Ball(-60, -5),
+						new Ball(60, 5),
+						new Ball(-60, -5),
+						new Text(-70, "wanting it isn't enough", ctx),
+						new Ball(80, -2),
+						new Ball(0, -2),
+						new Text(-170, "some things you can't ever have", ctx, 2),
+						],
+						function(done) {
+							if (++this.tries === 4)
+								seqs.shift();
+							else
+								return done;
+						}, {tries:0}),
+					new Seq([
+						new Text(0, 'stopping can be harder than starting', ctx),
+						new Ball(-190, 2),
+						new Ball(90, -2.5),
+						new Ball(80, 0),
+						new Ball(0, 0),
+						new Ball(0, 0),
+						new Ball(0, 0),
+						new Ball(0, 0),
+						new Ball(0, 0),
+						new Ball(0, 0),
+						new Ball(0, 0),
+						],
 						advance),
 					new Seq([
 						new Text(100, 'all done', ctx)])
