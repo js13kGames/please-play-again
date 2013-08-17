@@ -11,16 +11,27 @@ require([], function() {
 		this.ongone = ongone;
 		this.objs = objs;
 		this.hit = 0;
-		this.x = 0;
-		var last = objs[objs.length - 1];
-		this.w = last.x + last.w;
+		this.x = 1000;
+
+		/* each object has an x value, which we consider to be its
+			offset from the previous object.
+		*/
+		var x = 0;
 		objs.forEach(function(o) {
-			o.x0 = o.x;
+			x += o.x;
+			o.x0 = x;
+			x += o.w;
 			o.seq = this;
 		}, this);
+
+		this.w = x;
 	};
 
 	Seq.prototype.tick = function(t) {
+		this.x -= t / 1000 * 200;
+
+		if (this.w + this.x < 0)
+			this.gone();
 	};
 
 	Seq.prototype.draw = function(ctx) {
@@ -39,14 +50,14 @@ require([], function() {
 		}, this);
 	};
 
-	Seq.prototype.gone = function(slide) {
+	Seq.prototype.gone = function() {
 		if (this.remaining <= 0) {
 			if (this.ongone) {
-				this.ongone(true, slide);
+				this.ongone(true);
 			}
 		} else {
-			if (this.ongone && !this.ongone(false, slide)) {
-				slide.add([this]);
+			if (this.ongone && !this.ongone(false)) {
+				this.x = 1000;
 				this.objs.forEach(function(o) {
 					o.hit = false;
 				});
@@ -60,16 +71,18 @@ require([], function() {
 		this.style(ctx);
 		this.w = ctx.measureText(value).width;
 	};
-	Text.prototype.style = function(ctx) {
-		ctx.font = "40px sans-serif";
-		ctx.fillStyle = grey;
-	};
-	Text.prototype.draw = function(ctx) {
-		this.style(ctx);
-		ctx.fillText(this.s, this.x, middle - 25);
+	Text.prototype = {
+		checkHit: function(){},
+		style: function(ctx) {
+			ctx.font = "40px sans-serif";
+			ctx.fillStyle = grey;
+		},
+		draw: function(ctx) {
+			this.style(ctx);
+			ctx.fillText(this.s, this.x, middle - 25);
+		},
 	};
 
-	Text.prototype.checkHit = function(){};
 
 	var Ball = function(x, h) {
 		this.w = 50;
@@ -102,44 +115,6 @@ require([], function() {
 		ctx.lineTo(x, y);
 		ctx.stroke();
 		*/
-	};
-
-	var Slide = function(objs) {
-		this.objs = [];
-		this.add(objs);
-	};
-
-	Slide.prototype = {
-		draw: function(ctx) {
-			ctx.lineWidth = 3;
-
-			this.objs.forEach(function(o) {
-				o.draw(ctx);
-			});
-		},
-		tick: function(t) {
-			var offscreen = 0, objs = this.objs.slice(0);
-			
-			objs.forEach(function(o) {
-				o.tick();
-				o.x -= t / 1000 * 200;
-				if (o.x <= -1 * o.w) {
-					offscreen++;
-					o.gone(this);
-				}
-			}, this);
-
-			this.objs = this.objs.slice(offscreen);
-		},
-		add: function(addme) {
-			var xs = this.objs.map(function(o) { return o.x; });
-			xs.push(1000);
-			var offset = Math.max.apply(null, xs);
-			addme.forEach(function(o) {
-				o.x += offset;
-				this.objs.push(o);
-			}, this);
-		},
 	};
 
 	var Thing = function() {
@@ -185,26 +160,27 @@ require([], function() {
 		var canvas = $('#c')[0],
 			ctx = canvas.getContext('2d'),
 			advance = function(done, slide) {
-				if (done) slide.add([seqs.shift()]);
+				if (done) seqs.shift();
 				else return done;
 			},
 			seqs = [new Seq([
 						new Ball(0, 0),
-						new Text(100, "now tap down", ctx),
-						new Ball(60, 2)],
+						new Text(100, "down", ctx),
+						new Ball(60, 2),
+						new Ball(60, -2.5)],
 						advance),
 					new Seq([
 						new Text(100, 'all done', ctx)])
 					],
 			player = new Thing(),
-			s = new Slide([seqs.shift()]),
 			loop = function() {
+				if (seqs.length === 0)
+					return;
 				setTimeout(loop, 1000/60);
-				s.tick(1000/60);
+				var s = seqs[0];
 				player.tick(1000/60);
-				s.objs.forEach(function(o) {
-					o.checkHit(player);
-				});
+				s.tick(1000/60);
+				s.checkHit(player);
 				ctx.clearRect(0, 0,	canvas.width, canvas.height);
 				s.draw(ctx);
 				player.draw(ctx);
