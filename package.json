@@ -1,0 +1,10 @@
+{
+  "name": "13k",
+  "version": "0.1.0",
+  "devDependencies": {
+    "bower": "~1.0.0",
+    "grunt": "~0.4.1",
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-clean": "~0.5.0"
+  }
+}
