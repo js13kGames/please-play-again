@@ -44,15 +44,24 @@
 			blue: 40FFE0
 			green: 14C77A
 		*/
+		.faded {
+			opacity: 0.5;
+		}
 	</style>
 </head>
 <body>
 	<div style="height: 300px; margin: 50px auto;">
 		<div style="position: absolute; width: 100%;">
-			<div class="stripe"></div>
-			<div class="orange stripe"></div>
+			<div class="faded stripe"></div>
+			<div class="faded orange stripe"></div>
+
+			<div style="margin: -300px auto 0 auto; width: 1000px;">
+				<div class="stripe"></div>
+				<div class="orange stripe"></div>
+			</div>
 		</div>
-			<canvas id="c" width="1000" height="300"></canvas>
+
+		<canvas id="c" width="1000" height="300"></canvas>
 	</div>
 	<p>
 		press up<br/>
