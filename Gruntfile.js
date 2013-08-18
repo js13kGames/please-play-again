@@ -13,12 +13,10 @@ module.exports = function(grunt) {
 				browser: true
 			}
 		},
-		requirejs: {
-			compile: {
-				options: {
-					baeUrl: "./",
-					name: "main",
-					out: "optimized.js"
+		uglify: {
+			dist: {
+				files: {
+					'optimized.js': 'main.js'
 				}
 			}
 		},
@@ -33,9 +31,9 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-requirejs');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-bytesize');
 	grunt.loadNpmTasks('grunt-zip');
 
-	grunt.registerTask('default', ['jshint', 'requirejs', 'zip', 'bytesize']);
+	grunt.registerTask('default', ['jshint', 'uglify', 'zip', 'bytesize']);
 };
