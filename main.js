@@ -167,8 +167,8 @@ Thing.prototype = {
 	},
 };
 
-$(document).ready(function() {
-	var canvas = $('#c')[0],
+window.onload = function() {
+	var canvas = document.getElementById('c'),
 		ctx = canvas.getContext('2d'),
 		advance = function(done, slide) {
 			if (done) seqs.shift();
@@ -226,7 +226,7 @@ $(document).ready(function() {
 			player.draw(ctx);
 		};
 
-		$('body')[0].onkeydown = function(e) {
+		document.getElementsByTagName('body')[0].onkeydown = function(e) {
 			var key = e.keyCode || e.which;
 			if (key == 0x26) {
 				player.nudge(1);
@@ -236,5 +236,5 @@ $(document).ready(function() {
 		};
 
 		loop();
-});
+};
 
