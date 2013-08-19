@@ -15,6 +15,7 @@ _ = {
 };
 
 var Seq = function(objs, ongone, props) {
+	this.finished = false;
 	this.ongone = ongone;
 	this.objs = objs;
 	this.hit = 0;
@@ -63,6 +64,7 @@ Seq.prototype.checkHit = function(avatar) {
 Seq.prototype.gone = function() {
 	if (this.remaining <= 0) {
 		if (this.ongone) {
+			this.finished = true;
 			this.ongone(true);
 		}
 	} else {
@@ -170,10 +172,18 @@ Thing.prototype = {
 window.onload = function() {
 	var canvas = document.getElementById('c'),
 		ctx = canvas.getContext('2d'),
-		advance = function(done, slide) {
-			if (done) seqs.shift();
+		nextSeq = function() {
+			currentSeq = ++currentSeq % seqs.length;
+			if (seqs[currentSeq].finished === true)
+				nextSeq();
+			else
+				updatePosition();
+		},
+		advance = function(done) {
+			if (done) nextSeq();
 			else return done;
 		},
+		currentSeq = 0,
 		seqs = [new Seq([
 					new Ball(0, 0),
 					new Ball(260, 2),
@@ -190,10 +200,12 @@ window.onload = function() {
 					new Text(-170, "some things you can't ever have", ctx, 2),
 					],
 					function(done) {
-						if (++this.tries === 4)
-							seqs.shift();
-						else
+						if (++this.tries >= 2) {
+							this.tries = 0;
+							advance(true);
+						} else {
 							return done;
+						}
 					}, {tries:0}),
 				new Seq([
 					new Text(0, 'stopping can be harder than starting', ctx),
@@ -208,16 +220,22 @@ window.onload = function() {
 					new Ball(0, 0),
 					new Ball(0, 0),
 					],
-					advance),
-				new Seq([
-					new Text(100, 'all done', ctx)])
-				],
+					advance)],
 		player = new Thing(),
+		progressArea = document.getElementById("progress"),
+		updatePosition = function() {
+			var result = [], type;
+			for (var i = 0; i < seqs.length; i++) {
+				type = seqs[i].finished ? "finished" : "unfinished";
+				if (i == currentSeq)
+					type = "current";	
+				result.push('<span class="', type, '">&#5603;</span>');
+			}
+			progressArea.innerHTML = result.join("");
+		},
 		loop = function() {
-			if (seqs.length === 0)
-				return;
 			setTimeout(loop, 1000/60);
-			var s = seqs[0];
+			var s = seqs[currentSeq];
 			player.tick(1000/60);
 			s.tick(1000/60);
 			s.checkHit(player);
@@ -235,6 +253,7 @@ window.onload = function() {
 			}
 		};
 
+		updatePosition();
 		loop();
 };
 
