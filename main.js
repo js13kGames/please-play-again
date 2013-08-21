@@ -169,35 +169,49 @@ Thing.prototype = {
 	},
 };
 
-window.onload = function() {
+var Game = function() {
 	var canvas = document.getElementById('c'),
-		ctx = canvas.getContext('2d'),
-		nextSeq = function() {
-			currentSeq = ++currentSeq % seqs.length;
-			if (seqs[currentSeq].finished === true)
-				nextSeq();
-			else
-				updatePosition();
-		},
-		advance = function(done) {
-			if (done) nextSeq();
-			else return done;
-		},
-		currentSeq = 0,
-		seqs = [new Seq([
+		self = this;
+	this.w = canvas.width;
+	this.h = canvas.height;
+	this.ctx = canvas.getContext('2d');
+	this.seq = 0;
+	var advance = function(done) {
+		if (done) self.nextSeq();
+		else return done;
+	};
+	this.progress = document.getElementById("progress");
+	this.player = new Thing();
+
+	document.getElementsByTagName('body')[0].onkeydown = function(e) {
+			var key = e.keyCode || e.which;
+			if (key == 0x26) {
+				self.player.nudge(1);
+			} else if (key == 0x28) {
+				self.player.nudge(-1);
+			}
+	};
+
+	this.seqs = [new Seq([
 					new Ball(0, 0),
 					new Ball(260, 2),
 					new Ball(90, -2.5)],
+					advance),
+				new Seq([
+					new Ball(0, 0),
+					new Ball(90, 3),
+					new Ball(160, 3),
+					new Ball(30, 0),
+					new Ball(190, 0)],
 					advance),
 				new Seq([
 					new Ball(0, 5),
 					new Ball(-60, -5),
 					new Ball(60, 5),
 					new Ball(-60, -5),
-					new Text(-70, "wanting it isn't enough", ctx),
-					new Ball(80, -2),
+					new Ball(140, -2),
 					new Ball(0, -2),
-					new Text(-170, "some things you can't ever have", ctx, 2),
+					new Text(-170, "some things you can't ever have", this.ctx, 2),
 					],
 					function(done) {
 						if (++this.tries >= 2) {
@@ -208,7 +222,7 @@ window.onload = function() {
 						}
 					}, {tries:0}),
 				new Seq([
-					new Text(0, 'stopping can be harder than starting', ctx),
+					new Text(0, 'stopping can be harder than starting', this.ctx),
 					new Ball(-190, 2),
 					new Ball(90, -2.5),
 					new Ball(80, 0),
@@ -220,40 +234,47 @@ window.onload = function() {
 					new Ball(0, 0),
 					new Ball(0, 0),
 					],
-					advance)],
-		player = new Thing(),
-		progressArea = document.getElementById("progress"),
-		updatePosition = function() {
-			var result = [], type;
-			for (var i = 0; i < seqs.length; i++) {
-				type = seqs[i].finished ? "finished" : "unfinished";
-				if (i == currentSeq)
-					type = "current";	
-				result.push('<span class="', type, '">&#5603;</span>');
-			}
-			progressArea.innerHTML = result.join("");
-		},
-		loop = function() {
-			setTimeout(loop, 1000/60);
-			var s = seqs[currentSeq];
-			player.tick(1000/60);
-			s.tick(1000/60);
-			s.checkHit(player);
-			ctx.clearRect(0, 0,	canvas.width, canvas.height);
-			s.draw(ctx);
-			player.draw(ctx);
-		};
-
-		document.getElementsByTagName('body')[0].onkeydown = function(e) {
-			var key = e.keyCode || e.which;
-			if (key == 0x26) {
-				player.nudge(1);
-			} else if (key == 0x28) {
-				player.nudge(-1);
-			}
-		};
-
-		updatePosition();
-		loop();
+					advance)];
 };
 
+Game.prototype = {
+	nextSeq: function() {
+		this.seq = ++this.seq % this.seqs.length;
+		if (this.seqs[this.seq].finished === true)
+			this.nextSeq();
+		else
+			this.updatePosition();
+	},
+
+	updatePosition: function() {
+		var result = [], type;
+		for (var i = 0; i < this.seqs.length; i++) {
+			type = this.seqs[i].finished ? "finished" : "unfinished";
+			if (i == this.seq)
+				type = "current";	
+			result.push('<span class="', type, '">&#5603;</span>');
+		}
+		this.progress.innerHTML = result.join("");
+	},
+
+	update: function(t) {
+		var s = this.seqs[this.seq];
+		this.player.tick(1000/60);
+		s.tick(1000/60);
+		s.checkHit(this.player);
+		this.ctx.clearRect(0, 0, this.w, this.h);
+		s.draw(this.ctx);
+		this.player.draw(this.ctx);
+	},
+};
+
+window.onload = function() {
+		var game = new Game(),
+		loop = function() {
+			setTimeout(loop, 1000/60);
+			game.update(1000/60);
+		};
+
+		game.updatePosition();
+		loop();
+};
