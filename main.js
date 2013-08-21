@@ -14,7 +14,8 @@ _ = {
 	}
 };
 
-var Seq = function(objs, ongone, props) {
+var Seq = function(title, objs, ongone, props) {
+	this.title = title;
 	this.finished = false;
 	this.ongone = ongone;
 	this.objs = objs;
@@ -76,26 +77,6 @@ Seq.prototype.gone = function() {
 		}
 	}
 };
-
-var Text = function(x, value, ctx, offset) {
-	this.x = x;
-	this.y = middle + ((offset * 30) || -25);
-	this.s = value;
-	this.style(ctx);
-	this.w = ctx.measureText(value).width;
-};
-Text.prototype = {
-	checkHit: function(){},
-	style: function(ctx) {
-		ctx.font = "1em sans-serif";
-		ctx.fillStyle = grey;
-	},
-	draw: function(ctx) {
-		this.style(ctx);
-		ctx.fillText(this.s, this.x, this.y);
-	},
-};
-
 
 var Ball = function(x, h) {
 	this.w = 50;
@@ -181,6 +162,7 @@ var Game = function() {
 		else return done;
 	};
 	this.progress = document.getElementById("progress");
+	this.title = document.getElementById("title");
 	this.player = new Thing();
 
 	document.getElementsByTagName('body')[0].onkeydown = function(e) {
@@ -192,26 +174,25 @@ var Game = function() {
 			}
 	};
 
-	this.seqs = [new Seq([
+	this.seqs = [new Seq("tap up", [
 					new Ball(0, 0),
 					new Ball(260, 2),
 					new Ball(90, -2.5)],
 					advance),
-				new Seq([
+				new Seq("big dipper", [
 					new Ball(0, 0),
 					new Ball(90, 3),
 					new Ball(160, 3),
 					new Ball(30, 0),
 					new Ball(190, 0)],
 					advance),
-				new Seq([
+				new Seq("some things you can't ever have", [
 					new Ball(0, 5),
 					new Ball(-60, -5),
 					new Ball(60, 5),
 					new Ball(-60, -5),
 					new Ball(140, -2),
 					new Ball(0, -2),
-					new Text(-170, "some things you can't ever have", this.ctx, 2),
 					],
 					function(done) {
 						if (++this.tries >= 2) {
@@ -221,9 +202,8 @@ var Game = function() {
 							return done;
 						}
 					}, {tries:0}),
-				new Seq([
-					new Text(0, 'stopping can be harder than starting', this.ctx),
-					new Ball(-190, 2),
+				new Seq("stopping can be harder than starting", [
+					new Ball(0, 2),
 					new Ball(90, -2.5),
 					new Ball(80, 0),
 					new Ball(0, 0),
@@ -250,8 +230,10 @@ Game.prototype = {
 		var result = [], type;
 		for (var i = 0; i < this.seqs.length; i++) {
 			type = this.seqs[i].finished ? "finished" : "unfinished";
-			if (i == this.seq)
+			if (i == this.seq) {
 				type = "current";	
+				this.title.innerHTML = this.seqs[i].title;
+			}
 			result.push('<span class="', type, '">&#5603;</span>');
 		}
 		this.progress.innerHTML = result.join("");
