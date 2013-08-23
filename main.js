@@ -86,12 +86,9 @@ var Ball = function(x, h) {
 };
 
 Ball.prototype.checkHit = function(avatar) {
-	// TODO: Don't leak logic like this
-	var x =  300, y =  middle + avatar.nudged * 6,
-		dx = x - this.x, dy = y - this.y;
-	if (Math.sqrt(dx * dx + dy * dy) < 30) {
+	var dx = avatar.x - this.x, dy = avatar.y - this.y;
+	if (Math.sqrt(dx * dx + dy * dy) < 30)
 		this.hit = true;
-	}
 	return this.hit;
 };
 
@@ -113,7 +110,8 @@ Ball.prototype.draw = function(ctx) {
 
 var Thing = function() {
 	this.time = 0;
-	this.nudged = 0;
+	this.x = 300;
+	this.y = middle;
 	this.v = 0;
 };
 
@@ -121,28 +119,27 @@ Thing.prototype = {
 	draw: function(ctx) {
 		ctx.fillStyle = "white";
 		ctx.beginPath();
-		x =  300;
-		y =  middle + this.nudged * 6;
-		ctx.moveTo(x + 10, y);
-		ctx.arc(x, y, 10, 0, Math.PI * 2);
+		ctx.moveTo(this.x + 10, this.y);
+		ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
 		ctx.fill();
 	},
 	tick: function(t) {
-		var sign = (this.nudged > 0) ? 1 : -1;
-		this.v -=  sign * 9 / 1000 * t;
+		var nudged = this.y - middle,
+			sign = (nudged > 0) ? 1 : -1;
+		this.v -=  sign * 26 / 1000 * t;
 		this.v *= 1.0 - (0.9 / 1000 * t);
-		if (Math.abs(this.nudged) < 1 && Math.abs(this.v) < 3 / t) {
+		if (Math.abs(nudged) < 10 && Math.abs(this.v) < 10 / t) {
 			this.v = 0;
-			this.nudged = 0;
+			this.y = middle;
 		}
-		this.nudged  += this.v;
+		this.y += this.v;
 
-		if (Math.abs(this.nudged) > 25) {
-			this.nudged = 25 * sign;
+		if (Math.abs(this.y - middle) > 150) {
+			this.y = middle + 150 * sign;
 		}
 	},
 	nudge: function(sign) {
-		this.v -=  sign * 2;
+		this.v -=  sign * 8;
 	},
 };
 
