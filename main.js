@@ -87,7 +87,7 @@ var Ball = function(x, h) {
 
 Ball.prototype.checkHit = function(avatar) {
 	// TODO: Don't leak logic like this
-	var x =  300, y =  middle + avatar.nudged * 5,
+	var x =  300, y =  middle + avatar.nudged * 6,
 		dx = x - this.x, dy = y - this.y;
 	if (Math.sqrt(dx * dx + dy * dy) < 30) {
 		this.hit = true;
@@ -122,17 +122,13 @@ Thing.prototype = {
 		ctx.fillStyle = "white";
 		ctx.beginPath();
 		x =  300;
-		y =  middle + this.nudged * 5;
+		y =  middle + this.nudged * 6;
 		ctx.moveTo(x + 10, y);
 		ctx.arc(x, y, 10, 0, Math.PI * 2);
 		ctx.fill();
 	},
 	tick: function(t) {
 		var sign = (this.nudged > 0) ? 1 : -1;
-		if (Math.abs(this.nudged) > 30) {
-			this.nudged = 30 * sign;
-		}
-
 		this.v -=  sign * 9 / 1000 * t;
 		this.v *= 1.0 - (0.9 / 1000 * t);
 		if (Math.abs(this.nudged) < 1 && Math.abs(this.v) < 3 / t) {
@@ -141,8 +137,8 @@ Thing.prototype = {
 		}
 		this.nudged  += this.v;
 
-		if (Math.abs(this.nudged) > 30) {
-			this.nudged = 30 * sign;
+		if (Math.abs(this.nudged) > 25) {
+			this.nudged = 25 * sign;
 		}
 	},
 	nudge: function(sign) {
@@ -177,16 +173,17 @@ var Game = function() {
 	this.seqs = [new Seq("tap up", [
 					new Ball(0, 0),
 					new Ball(260, 2),
-					new Ball(90, -2.5)],
-					advance),
-				new Seq("big dipper", [
-					new Ball(0, 0),
+					new Ball(90, -2.5),
+					],
+				advance),
+				new Seq("you don't know what you're doing",
+					[new Ball(0, 0),
 					new Ball(90, 3),
 					new Ball(160, 3),
 					new Ball(30, 0),
 					new Ball(190, 0)],
 					advance),
-				new Seq("some things you can't ever have", [
+				new Seq("wanting isn't enough", [
 					new Ball(0, 5),
 					new Ball(-60, -5),
 					new Ball(60, 5),
@@ -219,11 +216,10 @@ var Game = function() {
 
 Game.prototype = {
 	nextSeq: function() {
-		this.seq = ++this.seq % this.seqs.length;
-		if (this.seqs[this.seq].finished === true)
-			this.nextSeq();
-		else
-			this.updatePosition();
+		++this.seq;
+		if (this.seq >= this.seqs.length)
+			this.finished = true;
+		this.updatePosition();
 	},
 
 	updatePosition: function() {
@@ -253,8 +249,10 @@ Game.prototype = {
 window.onload = function() {
 		var game = new Game(),
 		loop = function() {
-			setTimeout(loop, 1000/60);
-			game.update(1000/60);
+			if (!game.finished) {
+				setTimeout(loop, 1000/60);
+				game.update(1000/60);
+			}
 		};
 
 		game.updatePosition();
