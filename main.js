@@ -14,13 +14,10 @@ _ = {
 	}
 };
 
-var Seq = function(title, objs, ongone, props) {
+var Seq = function(title, objs, props) {
 	this.title = title;
 	this.finished = false;
-	this.ongone = ongone;
 	this.objs = objs;
-	this.hit = 0;
-	this.x = 1000;
 
 	/* each object has an x value, which we consider to be its
 		offset from the previous object.
@@ -37,6 +34,7 @@ var Seq = function(title, objs, ongone, props) {
 	if (props) {
 		_.extend(this, props);
 	}
+	this.init();
 };
 
 Seq.prototype.tick = function(t) {
@@ -62,20 +60,22 @@ Seq.prototype.checkHit = function(avatar) {
 	}, this);
 };
 
+Seq.prototype.init = function() {
+	this.x = 1000;
+	this.objs.forEach(function(o) {
+		o.hit = false;
+	});
+	if (this.setup)
+		this.setup();
+};
+
 Seq.prototype.gone = function() {
-	if (this.remaining <= 0) {
-		if (this.ongone) {
-			this.finished = true;
-			this.ongone(true);
-		}
-	} else {
-		if (this.ongone && !this.ongone(false)) {
-			this.x = 1000;
-			this.objs.forEach(function(o) {
-				o.hit = false;
-			});
-		}
-	}
+	if (this.remaining <= 0)
+		this.finished = true;
+	else
+		this.init();
+	if (this.teardown)
+		this.teardown();
 };
 
 var Ball = function(x, h) {
@@ -150,10 +150,6 @@ var Game = function() {
 	this.h = canvas.height;
 	this.ctx = canvas.getContext('2d');
 	this.seq = 0;
-	var advance = function(done) {
-		if (done) self.nextSeq();
-		else return done;
-	};
 	this.progress = document.getElementById("progress");
 	this.title = document.getElementById("title");
 	this.player = new Thing();
@@ -171,15 +167,13 @@ var Game = function() {
 					new Ball(0, 0),
 					new Ball(260, 2),
 					new Ball(90, -2.5),
-					],
-				advance),
+					]),
 				new Seq("you don't know what you're doing",
 					[new Ball(0, 0),
 					new Ball(90, 3),
 					new Ball(160, 3),
 					new Ball(30, 0),
-					new Ball(190, 0)],
-					advance),
+					new Ball(190, 0)]),
 				new Seq("wanting isn't enough", [
 					new Ball(0, 5),
 					new Ball(-60, -5),
@@ -188,14 +182,13 @@ var Game = function() {
 					new Ball(140, -2),
 					new Ball(0, -2),
 					],
-					function(done) {
-						if (++this.tries >= 2) {
-							this.tries = 0;
-							advance(true);
-						} else {
-							return done;
+					{
+						tries: 0,
+						teardown: function() {
+							if (++this.tries < 2)
+								this.init();
 						}
-					}, {tries:0}),
+					}),
 				new Seq("stopping can be harder than starting", [
 					new Ball(0, 2),
 					new Ball(90, -2.5),
@@ -207,8 +200,8 @@ var Game = function() {
 					new Ball(0, 0),
 					new Ball(0, 0),
 					new Ball(0, 0),
-					],
-					advance)];
+					])
+			];
 };
 
 Game.prototype = {
@@ -240,6 +233,9 @@ Game.prototype = {
 		this.ctx.clearRect(0, 0, this.w, this.h);
 		s.draw(this.ctx);
 		this.player.draw(this.ctx);
+
+		if (s.finished)
+			this.nextSeq();
 	},
 };
 
