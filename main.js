@@ -7,6 +7,12 @@ var middle = 150,
 ;
 
 _ = {
+	$: function(id) {
+		return document.getElementById(id);
+	},
+	$$: function(t) {
+		return document.getElementsByTagName(t);
+	},
 	extend: function(a, b) {
 		Object.keys(b).forEach(function(k) {
 			a[k] = b[k];
@@ -16,7 +22,7 @@ _ = {
 
 var Seq = function(title, objs, props) {
 	this.title = title;
-	this.finished = false;
+	this.finished = 0;
 	this.objs = objs;
 
 	/* each object has an x value, which we consider to be its
@@ -34,7 +40,6 @@ var Seq = function(title, objs, props) {
 	if (props) {
 		_.extend(this, props);
 	}
-	this.init();
 };
 
 Seq.prototype.tick = function(t) {
@@ -70,12 +75,12 @@ Seq.prototype.init = function() {
 };
 
 Seq.prototype.gone = function() {
-	if (this.remaining <= 0)
-		this.finished = true;
-	else
-		this.init();
 	if (this.teardown)
 		this.teardown();
+	if (this.remaining <= 0)
+		this.finished = 2;
+	else
+		this.init();
 };
 
 var Ball = function(x, h) {
@@ -173,7 +178,14 @@ var Game = function() {
 					new Ball(90, 3),
 					new Ball(160, 3),
 					new Ball(30, 0),
-					new Ball(190, 0)]),
+					new Ball(190, 0)], {
+						setup: function() {
+							_.$$('body')[0].className = "squished";
+						},
+						teardown: function() {
+							_.$$('body')[0].className = "";
+						},
+					}),
 				new Seq("wanting isn't enough", [
 					new Ball(0, 5),
 					new Ball(-60, -5),
@@ -185,8 +197,8 @@ var Game = function() {
 					{
 						tries: 0,
 						teardown: function() {
-							if (++this.tries < 2)
-								this.init();
+							if (++this.tries > 2)
+								this.finished = 1;
 						}
 					}),
 				new Seq("stopping can be harder than starting", [
@@ -202,6 +214,7 @@ var Game = function() {
 					new Ball(0, 0),
 					])
 			];
+	this.seqs[this.seq].init();
 };
 
 Game.prototype = {
@@ -210,12 +223,13 @@ Game.prototype = {
 		if (this.seq >= this.seqs.length)
 			this.finished = true;
 		this.updatePosition();
+		this.seqs[this.seq].init();
 	},
 
 	updatePosition: function() {
 		var result = [], type;
 		for (var i = 0; i < this.seqs.length; i++) {
-			type = this.seqs[i].finished ? "finished" : "unfinished";
+			type = this.seqs[i].finished == 2 ? "finished" : "unfinished";
 			if (i == this.seq) {
 				type = "current";	
 				this.title.innerHTML = this.seqs[i].title;
@@ -234,7 +248,7 @@ Game.prototype = {
 		s.draw(this.ctx);
 		this.player.draw(this.ctx);
 
-		if (s.finished)
+		if (s.finished > 0)
 			this.nextSeq();
 	},
 };

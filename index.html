@@ -12,7 +12,7 @@
 			margin-top: 1em;
 		}
 		
-		canvas {
+		#ccont, #c {
 			position: relative;
 			display: block;
 			margin: 0 auto;
@@ -66,6 +66,20 @@
 			text-align: center;
 			color: #40FFE0;
 		}
+
+		.squished  #cstripe {
+			width: 200px !important;
+		}
+
+		.squished #ccont {
+			width: 200px;
+			overflow: hidden;
+		}
+
+		.squished #c {
+			margin-left: -200px;
+		}
+
 	</style>
 </head>
 <body>
@@ -76,13 +90,15 @@
 			<div class="faded stripe"></div>
 			<div class="faded orange stripe"></div>
 
-			<div style="margin: -300px auto 0 auto; width: 1000px;">
+			<div id="cstripe" style="margin: -300px auto 0 auto; width: 1000px;">
 				<div class="stripe"></div>
 				<div class="orange stripe"></div>
 			</div>
 		</div>
 
-		<canvas id="c" width="1000" height="300"></canvas>
+		<div id="ccont">
+			<canvas id="c" width="1000" height="300"></canvas>
+		</div>
 	</div>
 	<small>2013 js13k entry by Alex Wilson</small>
 </body>
