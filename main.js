@@ -18,6 +18,7 @@ _ = {
 		Object.keys(b).forEach(function(k) {
 			a[k] = b[k];
 		});
+		return a;
 	}
 };
 
@@ -95,6 +96,7 @@ var Ball = function(x, h) {
 };
 
 _.extend(Ball.prototype, {
+	hitColor: green,
 	checkHit: function(avatar) {
 		var dx = avatar.x - this.x, dy = avatar.y - this.y;
 		if (Math.sqrt(dx * dx + dy * dy) < 30)
@@ -104,7 +106,7 @@ _.extend(Ball.prototype, {
 	
 	draw: function(ctx) {
 		var x = this.x, y = this.y;
-		ctx.fillStyle = this.hit ? green : "white";
+		ctx.fillStyle = this.hit ? this.hitColor : "white";
 		ctx.beginPath();
 		ctx.moveTo(x + 25, y);
 		ctx.arc(x, y, 25, 0, Math.PI * 2);
@@ -116,6 +118,18 @@ _.extend(Ball.prototype, {
 		ctx.lineTo(x, y);
 		ctx.stroke();
 		*/
+	}
+});
+
+var BadBall = function(x, h) {
+	Ball.call(this, x, h);
+};
+
+
+BadBall.prototype = _.extend(Object.create(Ball.prototype), {
+	hitColor: grey, 
+	checkHit: function(avatar) {
+		return !Ball.prototype.checkHit.call(this, avatar);
 	}
 });
 
@@ -177,6 +191,11 @@ var Game = function() {
 	this.seqs = [new Seq("tap up", [
 					new Ball(0, 0),
 					new Ball(260, 2),
+					new Ball(90, -2.5),
+					]),
+				new Seq("rules change", [
+					new Ball(0, 0),
+					new BadBall(260, 2),
 					new Ball(90, -2.5),
 					]),
 				new Seq("you don't know what you're doing",
