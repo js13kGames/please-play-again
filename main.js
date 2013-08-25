@@ -198,6 +198,15 @@ var Game = function() {
 					new BadBall(260, 2),
 					new Ball(90, -2.5),
 					]),
+				new Seq("fairness is meaningless without equality", [
+					new Ball(0, 0),
+					new BadBall(40, 0),
+					new Ball(40, 0),
+					new BadBall(40, 0),
+					new Ball(40, 0),
+					new BadBall(40, 0),
+					new Ball(40, 0),
+					]),
 				new Seq("you don't know what you're doing",
 					[new Ball(0, 0),
 					new Ball(90, 3),
@@ -237,7 +246,26 @@ var Game = function() {
 					new Ball(0, 0),
 					new Ball(0, 0),
 					new Ball(0, 0),
-					])
+					]),
+				new Seq("never give up", [
+					new Ball(90, -2.5),
+					new BadBall(100, 4.2),
+					new BadBall(-50, 3.5),
+					new BadBall(-50, 2.0),
+					new BadBall(-50, 1.3),
+					new BadBall(-50, 1.0),
+					new BadBall(-50, 0.5),
+					new BadBall(-50, 0),
+					new BadBall(-50, -1.0),
+					new BadBall(-50, -1.7),
+					new BadBall(-50, -2.8),
+					new BadBall(-50, -3.5),
+					new BadBall(-50, -5.5),
+					new Ball(140, 2.5)
+				]),
+				new Seq("how did you get here?", [
+					new Ball(0, 0),
+				])
 			];
 	this.seqs[this.seq].init();
 };
