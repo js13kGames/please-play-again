@@ -7,6 +7,7 @@ var middle = 150,
 ;
 
 _ = {
+	nil: function() {},
 	$: function(id) {
 		return document.getElementById(id);
 	},
@@ -42,46 +43,49 @@ var Seq = function(title, objs, props) {
 	}
 };
 
-Seq.prototype.tick = function(t) {
-	this.x -= t / 1000 * 200;
+_.extend(Seq.prototype, {
+	tick: function(t) {
+		this.x -= t / 1000 * 200;
 
-	if (this.w + this.x < 0)
-		this.gone();
-};
+		if (this.w + this.x < 0)
+			this.gone();
+	},
 
-Seq.prototype.draw = function(ctx) {
-	this.objs.forEach(function(o) {
-		o.x = o.x0 + this.x;
-		o.draw(ctx);
-	}, this);
-};
+	draw: function(ctx) {
+		this.objs.forEach(function(o) {
+			o.x = o.x0 + this.x;
+			o.draw(ctx);
+		}, this);
+	},
 
-Seq.prototype.checkHit = function(avatar) {
-	this.remaining = 0;
-	this.objs.forEach(function(o) {
-		if (o.checkHit(avatar) === false) {
-			this.remaining++;
-		}
-	}, this);
-};
+	checkHit: function(avatar) {
+		this.remaining = 0;
+		this.objs.forEach(function(o) {
+			if (o.checkHit(avatar) === false) {
+				this.remaining++;
+			}
+		}, this);
+	},
 
-Seq.prototype.init = function() {
-	this.x = 1000;
-	this.objs.forEach(function(o) {
-		o.hit = false;
-	});
-	if (this.setup)
+	init: function() {
+		this.x = 1000;
+		this.objs.forEach(function(o) {
+			o.hit = false;
+		});
 		this.setup();
-};
+	},
 
-Seq.prototype.gone = function() {
-	if (this.teardown)
+	gone: function() {
 		this.teardown();
-	if (this.remaining <= 0)
-		this.finished = 2;
-	else
-		this.init();
-};
+		if (this.remaining <= 0)
+			this.finished = 2;
+		else
+			this.init();
+	},
+
+	setup: _.nil,
+	teardown: _.nil, 
+});
 
 var Ball = function(x, h) {
 	this.w = 50;
@@ -90,28 +94,30 @@ var Ball = function(x, h) {
 	this.hit = false;
 };
 
-Ball.prototype.checkHit = function(avatar) {
-	var dx = avatar.x - this.x, dy = avatar.y - this.y;
-	if (Math.sqrt(dx * dx + dy * dy) < 30)
-		this.hit = true;
-	return this.hit;
-};
-
-Ball.prototype.draw = function(ctx) {
-	var x = this.x, y = this.y;
-	ctx.fillStyle = this.hit ? green : "white";
-	ctx.beginPath();
-	ctx.moveTo(x + 25, y);
-	ctx.arc(x, y, 25, 0, Math.PI * 2);
-	ctx.fill();
-	/* IFDEF DEBUG
-	ctx.strokeStyle = "blue";
-	ctx.beginPath();
-	ctx.moveTo(0, 0);
-	ctx.lineTo(x, y);
-	ctx.stroke();
-	*/
-};
+_.extend(Ball.prototype, {
+	checkHit: function(avatar) {
+		var dx = avatar.x - this.x, dy = avatar.y - this.y;
+		if (Math.sqrt(dx * dx + dy * dy) < 30)
+			this.hit = true;
+		return this.hit;
+	},
+	
+	draw: function(ctx) {
+		var x = this.x, y = this.y;
+		ctx.fillStyle = this.hit ? green : "white";
+		ctx.beginPath();
+		ctx.moveTo(x + 25, y);
+		ctx.arc(x, y, 25, 0, Math.PI * 2);
+		ctx.fill();
+		/* IFDEF DEBUG
+		ctx.strokeStyle = "blue";
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(x, y);
+		ctx.stroke();
+		*/
+	}
+});
 
 var Thing = function() {
 	this.time = 0;
@@ -120,7 +126,7 @@ var Thing = function() {
 	this.v = 0;
 };
 
-Thing.prototype = {
+_.extend(Thing.prototype, {
 	draw: function(ctx) {
 		ctx.fillStyle = "white";
 		ctx.beginPath();
@@ -146,7 +152,7 @@ Thing.prototype = {
 	nudge: function(sign) {
 		this.v -=  sign * 8;
 	},
-};
+});
 
 var Game = function() {
 	var canvas = document.getElementById('c'),
@@ -217,13 +223,14 @@ var Game = function() {
 	this.seqs[this.seq].init();
 };
 
-Game.prototype = {
+_.extend(Game.prototype, {
 	nextSeq: function() {
 		++this.seq;
 		if (this.seq >= this.seqs.length)
 			this.finished = true;
+		else
+			this.seqs[this.seq].init();
 		this.updatePosition();
-		this.seqs[this.seq].init();
 	},
 
 	updatePosition: function() {
@@ -251,7 +258,7 @@ Game.prototype = {
 		if (s.finished > 0)
 			this.nextSeq();
 	},
-};
+});
 
 window.onload = function() {
 		var game = new Game(),
