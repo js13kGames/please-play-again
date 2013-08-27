@@ -198,7 +198,7 @@ var Game = function() {
 					new Ball(260, 2),
 					new Ball(90, -2.5),
 					]),
-				new Seq("fairness is meaningless without equality", [
+				new Seq("inequal and unfair", [
 					new Ball(0, 0),
 					new BadBall(40, 0),
 					new Ball(40, 0),
