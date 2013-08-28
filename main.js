@@ -19,7 +19,13 @@ _ = {
 			a[k] = b[k];
 		});
 		return a;
-	}
+	},
+	play: function(a) {
+		if (!this.muted) {
+			a.cloneNode().play();
+		}
+	},
+	muted: false
 };
 
 var Seq = function(title, objs, props) {
@@ -98,9 +104,13 @@ var Ball = function(x, h) {
 _.extend(Ball.prototype, {
 	hitColor: green,
 	checkHit: function(avatar) {
-		var dx = avatar.x - this.x, dy = avatar.y - this.y;
-		if (Math.sqrt(dx * dx + dy * dy) < 30)
+		var dx = avatar.x - this.x, dy = avatar.y - this.y, hit = this.hit;
+		if (Math.sqrt(dx * dx + dy * dy) < 30) {
 			this.hit = true;
+			if (!hit) {
+				_.play(this.noise);
+			}
+		}
 		return this.hit;
 	},
 	
@@ -314,6 +324,14 @@ window.onload = function() {
 				setTimeout(loop, 1000/60);
 				game.update(1000/60);
 			}
+		};
+
+		Ball.prototype.noise = _.$('h');
+		BadBall.prototype.noise = _.$('l');
+
+		_.$('mute').onclick = function() {
+			_.muted = !_.muted;
+			_.$('mute').textContent = _.muted ? 'unmute' : 'mute';
 		};
 
 		game.updatePosition();

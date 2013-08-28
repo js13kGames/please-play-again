@@ -80,6 +80,11 @@
 			margin-left: -200px;
 		}
 
+		#mute {
+			text-decoration: underline;
+			cursor: pointer;
+		}
+
 	</style>
 </head>
 <body>
@@ -100,6 +105,8 @@
 			<canvas id="c" width="1000" height="300"></canvas>
 		</div>
 	</div>
-	<small>2013 js13k entry by Alex Wilson</small>
+	<audio id="l" src="low.ogg"></audio>
+	<audio id="h" src="high.ogg"></audio>
+	<small><span id="mute">mute</span> 2013 js13k entry by Alex Wilson</small>
 </body>
 </html>

@@ -7,6 +7,13 @@ module.exports = function(grunt) {
 			}
 		},
 		clean: ["dist/"],
+		copy: {
+			dist: {
+				expand: true,
+				dest: 'dist/',
+				src: '*.ogg'
+			}
+		},
 		htmlmin: {
 			dist: {
 				options: {
@@ -32,22 +39,29 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		zip: {
+		compress: {
 			dist: {
-				cwd: 'dist/',
-				src: ['dist/main.js', 'dist/index.html'],
-				dest: 'dist/<%= pkg.name %>.zip'
+				options: {
+					archive: 'dist/<%= pkg.name %>.zip',
+					mode: "zip",
+					pretty: true,
+					level: 9,
+				},
+				files: [
+					{src:['dist/*.js', 'dist/*.html', 'dist/*.ogg'], dest: ''}
+				]
 			}
 		}
 	});
 
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-compress');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-htmlmin');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-bytesize');
-	grunt.loadNpmTasks('grunt-zip');
 
-	grunt.registerTask('default', ['htmlmin', 'jshint', 'uglify', 'zip', 'bytesize']);
+	grunt.registerTask('default', ['copy', 'htmlmin', 'jshint', 'uglify', 'compress', 'bytesize']);
 };
