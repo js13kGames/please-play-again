@@ -1,11 +1,6 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		bytesize: {
-			dist: {
-				src: ['dist/<%= pkg.name %>.zip']
-			}
-		},
 		clean: ["dist/"],
 		copy: {
 			dist: {
@@ -61,7 +56,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-htmlmin');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-bytesize');
 
-	grunt.registerTask('default', ['copy', 'htmlmin', 'jshint', 'uglify', 'compress', 'bytesize']);
+	grunt.registerTask('default', ['copy', 'htmlmin', 'jshint', 'uglify', 'compress']);
 };
