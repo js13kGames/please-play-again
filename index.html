@@ -14,8 +14,6 @@
 		
 		#ccont, #c {
 			position: relative;
-			display: block;
-			margin: 0 auto;
 			z-index: 2;
 		}
 		.stripe {
@@ -34,9 +32,6 @@
 		small {
 			color: #14C77A;
 			text-align: right;
-			display: block;
-			width: 1000px;
-			margin: 0 auto;
 		}
 		/*
 			yellowy: F7B019
@@ -49,22 +44,31 @@
 			opacity: 0.5;
 		}
 		#progress {
-			width: 100%;
-			text-align: center;
 			font-size: 150%;
+		}
+		#progress span {
+			border-right: 2px solid white;
 		}
 		#progress .current{
 			color: #40FFE0;
+			background-color: #40FFE0;
 		}
 		#progress .unfinished {
 			color: #999285;
+			background-color: #999285;
 		}
 		#progress .finished {
 			color: #14C77A;
+			background-color: #14C77A;
+		}
+		h3, small, #cstripe, #ccont {
+			width: 1000px;
+			margin: 0 auto;
+			display: block;
 		}
 		h3 {
-			text-align: center;
 			color: #40FFE0;
+			text-align: left;
 		}
 
 		.squished  #cstripe {
@@ -89,14 +93,16 @@
 	</style>
 </head>
 <body>
-	<div id="progress"></div>
-	<h3 id="title"></h3>
+	<h3>
+		<span id="progress"></span>
+		<span id="title"></span>
+	</h3>
 	<div style="height: 300px; margin: 1em auto 50px auto;">
 		<div style="position: absolute; width: 100%;">
 			<div class="faded stripe"></div>
 			<div class="faded orange stripe"></div>
 
-			<div id="cstripe" style="margin: -300px auto 0 auto; width: 1000px;">
+			<div id="cstripe" style="margin-top: -300px; ">
 				<div class="stripe"></div>
 				<div class="orange stripe"></div>
 			</div>

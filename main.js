@@ -95,17 +95,17 @@ _.extend(Seq.prototype, {
 });
 
 var Ball = function(x, h) {
-	this.w = 50;
 	this.x = x;
 	this.y = middle + h * 30;
 	this.hit = false;
 };
 
 _.extend(Ball.prototype, {
+	w: 70,
 	hitColor: green,
 	checkHit: function(avatar) {
 		var dx = avatar.x - this.x, dy = avatar.y - this.y, hit = this.hit;
-		if (Math.sqrt(dx * dx + dy * dy) < 30) {
+		if (Math.sqrt(dx * dx + dy * dy) < (this.w/2 + 5)) {
 			this.hit = true;
 			if (!hit) {
 				_.play(this.noise);
@@ -118,8 +118,8 @@ _.extend(Ball.prototype, {
 		var x = this.x, y = this.y;
 		ctx.fillStyle = this.hit ? this.hitColor : "white";
 		ctx.beginPath();
-		ctx.moveTo(x + 25, y);
-		ctx.arc(x, y, 25, 0, Math.PI * 2);
+		ctx.moveTo(x + this.w/2, y);
+		ctx.arc(x, y, this.w/2, 0, Math.PI * 2);
 		ctx.fill();
 		/* IFDEF DEBUG
 		ctx.strokeStyle = "blue";
@@ -137,7 +137,8 @@ var BadBall = function(x, h) {
 
 
 BadBall.prototype = _.extend(Object.create(Ball.prototype), {
-	hitColor: grey, 
+	w: 40,
+	hitColor: grey,
 	checkHit: function(avatar) {
 		return !Ball.prototype.checkHit.call(this, avatar);
 	}
@@ -208,7 +209,7 @@ var Game = function() {
 					new Ball(260, 2),
 					new Ball(90, -2.5),
 					]),
-				new Seq("inequal and unfair", [
+				new Seq("ups and downs", [
 					new Ball(0, 0),
 					new BadBall(40, 0),
 					new Ball(40, 0),
