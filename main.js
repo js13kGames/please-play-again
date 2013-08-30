@@ -74,7 +74,8 @@ _.extend(Seq.prototype, {
 		}, this);
 	},
 
-	init: function() {
+	init: function(game) {
+		this.game = game;
 		this.x = 1000;
 		this.objs.forEach(function(o) {
 			o.hit = false;
@@ -87,7 +88,7 @@ _.extend(Seq.prototype, {
 		if (this.remaining <= 0)
 			this.finished = 2;
 		else
-			this.init();
+			this.init(this.game);
 	},
 
 	setup: _.nil,
@@ -204,12 +205,12 @@ var Game = function() {
 					new Ball(260, 2),
 					new Ball(90, -2.5),
 					]),
-				new Seq("rules change", [
+				new Seq("adapt", [
 					new BadBall(0, 0),
 					new Ball(260, 2),
 					new Ball(90, -2.5),
 					]),
-				new Seq("ups and downs", [
+				new Seq("you're really good at this", [
 					new Ball(0, 0),
 					new BadBall(40, 0),
 					new Ball(40, 0),
@@ -218,7 +219,7 @@ var Game = function() {
 					new BadBall(40, 0),
 					new Ball(40, 0),
 					]),
-				new Seq("you don't know what you're doing",
+				new Seq("you don't need to know what you're doing",
 					[new Ball(0, 0),
 					new Ball(90, 3),
 					new Ball(160, 3),
@@ -231,22 +232,13 @@ var Game = function() {
 							_.$$('body')[0].className = "";
 						},
 					}),
-				new Seq("wanting isn't enough", [
+				new Seq("push against your limits", [
 					new Ball(0, 5),
-					new Ball(-60, -5),
 					new Ball(60, 5),
-					new Ball(-60, -5),
-					new Ball(140, -2),
-					new Ball(0, -2),
-					],
-					{
-						tries: 0,
-						teardown: function() {
-							if (++this.tries > 2)
-								this.finished = 1;
-						}
-					}),
-				new Seq("stopping can be harder than starting", [
+					new Ball(30, -5),
+					new Ball(60, -5),
+					]),
+				new Seq("you can do it", [
 					new Ball(0, 2),
 					new Ball(90, -2.5),
 					new Ball(80, 0),
@@ -257,6 +249,12 @@ var Game = function() {
 					new Ball(0, 0),
 					new Ball(0, 0),
 					new Ball(0, 0),
+					]),
+				new Seq("keep up the good work", [
+					new Ball(0, 0),
+					new Ball(30, 3),
+					new Ball(30, -0),
+					new Ball(30, -3),
 					]),
 				new Seq("never give up", [
 					new Ball(90, -2.5),
@@ -271,13 +269,23 @@ var Game = function() {
 					new BadBall(-50, -3),
 					new BadBall(-50, -4),
 					new BadBall(-50, -5),
-					new Ball(140, 2.5)
-				]),
+					new Ball(140, 2.5),],
+					{
+						tries: 0,
+						titles: ["don't stop now", 'keep trying',
+							'never give up'],
+						teardown: function() {
+							this.tries = ++this.tries % this.titles.length;
+							this.title = this.titles[this.tries];
+							this.game.title.innerHTML = this.title;
+						}
+					}
+				),
 				new Seq("how did you get here?", [
 					new Ball(0, 0),
 				])
 			];
-	this.seqs[this.seq].init();
+	this.seqs[this.seq].init(this);
 };
 
 _.extend(Game.prototype, {
@@ -286,7 +294,7 @@ _.extend(Game.prototype, {
 		if (this.seq >= this.seqs.length)
 			this.finished = true;
 		else
-			this.seqs[this.seq].init();
+			this.seqs[this.seq].init(this);
 		this.updatePosition();
 	},
 
