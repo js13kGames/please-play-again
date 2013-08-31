@@ -43,7 +43,10 @@ module.exports = function(grunt) {
 					level: 9,
 				},
 				files: [
-					{src:['dist/*.js', 'dist/*.html', 'dist/*.ogg'], dest: ''}
+					{
+						cwd: 'dist',
+						src:['*.js', '*.html', '*.ogg']
+					}
 				]
 			}
 		}
