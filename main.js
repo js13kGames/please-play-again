@@ -173,6 +173,7 @@ _.extend(Thing.prototype, {
 
 		if (Math.abs(this.y - middle) > 150) {
 			this.y = middle + 150 * sign;
+			this.v = sign * Math.min(8, Math.abs(this.v));
 		}
 	},
 	nudge: function(sign) {
