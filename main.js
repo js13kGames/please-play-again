@@ -274,7 +274,7 @@ var Game = function() {
 					{
 						tries: 0,
 						titles: ["don't stop now", 'keep trying',
-							'never give up'],
+							'never give up', 'believe in yourself'],
 						teardown: function() {
 							this.tries = ++this.tries % this.titles.length;
 							this.title = this.titles[this.tries];
@@ -283,6 +283,9 @@ var Game = function() {
 					}
 				),
 				new Seq("how did you get here?", [
+					new Ball(0, 0),
+				]),
+				new Seq("srsly", [
 					new Ball(0, 0),
 				])
 			];
