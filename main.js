@@ -245,7 +245,7 @@ var Game = function() {
 					new Ball(260, 2),
 					new Ball(90, -2.5),
 					]),
-				new Seq("you're really good at this", [
+				new Seq("you are special and amazing", [
 					new Ball(0, 0),
 					new BadBall(40, 0),
 					new Ball(40, 0),
@@ -285,7 +285,7 @@ var Game = function() {
 					new Ball(0, 0),
 					new Ball(0, 0),
 					]),
-				new Seq("keep up the good work", [
+				new Seq("you can do anything", [
 					new Ball(0, 0),
 					new Ball(30, 3),
 					new Ball(30, -0),
