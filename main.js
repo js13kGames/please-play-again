@@ -1,3 +1,37 @@
+/* animLoopX.js from gist.github.com/louisremi/1114293 */
+// Cross browser, backward compatible solution
+(function( window, Date ) {
+	// feature testing
+	var raf = window.mozRequestAnimationFrame ||
+	window.webkitRequestAnimationFrame ||
+	window.msRequestAnimationFrame ||
+	window.oRequestAnimationFrame;
+ 
+	window.animLoop = function( render, element ) {
+		var running, lastFrame = +new Date();
+		function loop( now ) {
+			if ( running !== false ) {
+				if (raf)
+					raf(loop, element);
+				else
+					setTimeout(loop, 16);
+				// Make sure to use a valid time, since:
+				// - Chrome 10 doesn't return it at all
+				// - setTimeout returns the actual timeout
+				now = now && now > 1E4 ? now : +new Date();
+				var deltaT = now - lastFrame;
+				// do not render frame when deltaT is too high
+				if ( deltaT < 160 ) {
+					running = render( deltaT, now );
+				}
+				lastFrame = now;
+			}
+		}
+		loop();
+	};
+})( window, Date );
+
+
 var middle = 150,
 	light_blue = "#40FFE0",
 	grey = "#999285",
@@ -182,17 +216,17 @@ _.extend(Thing.prototype, {
 });
 
 var Game = function() {
-	var canvas = document.getElementById('c'),
+	var canvas = _.$('c'),
 		self = this;
 	this.w = canvas.width;
 	this.h = canvas.height;
 	this.ctx = canvas.getContext('2d');
 	this.seq = 0;
-	this.progress = document.getElementById("progress");
-	this.title = document.getElementById("title");
+	this.progress = _.$("progress");
+	this.title = _.$("title");
 	this.player = new Thing();
 
-	document.getElementsByTagName('body')[0].onkeydown = function(e) {
+	_.$$('body')[0].onkeydown = function(e) {
 			var key = e.keyCode || e.which;
 			if (key == 0x26) {
 				self.player.nudge(1);
@@ -330,14 +364,7 @@ _.extend(Game.prototype, {
 });
 
 window.onload = function() {
-		var game = new Game(),
-		loop = function() {
-			if (!game.finished) {
-				setTimeout(loop, 1000/60);
-				game.update(1000/60);
-			}
-		};
-
+		var game = new Game();
 		Ball.prototype.noise = _.$('h');
 		BadBall.prototype.noise = _.$('l');
 
@@ -347,5 +374,9 @@ window.onload = function() {
 		};
 
 		game.updatePosition();
-		loop();
+		animLoop(function(dt, now) {
+			if (!game.finished) {
+				game.update(1000/60);
+			}
+		}, _.$('c'));
 };
