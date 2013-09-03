@@ -1,5 +1,6 @@
-/* animLoopX.js from gist.github.com/louisremi/1114293 */
-// Cross browser, backward compatible solution
+/* animLoopX.js from gist.github.com/louisremi/1114293
+ * Cross browser, backward compatible solution
+ */
 (function( window, Date ) {
 	// feature testing
 	var raf = window.mozRequestAnimationFrame ||
@@ -216,8 +217,7 @@ _.extend(Thing.prototype, {
 });
 
 var Game = function() {
-	var canvas = _.$('c'),
-		self = this;
+	var canvas = _.$('c');
 	this.w = canvas.width;
 	this.h = canvas.height;
 	this.ctx = canvas.getContext('2d');
@@ -225,15 +225,6 @@ var Game = function() {
 	this.progress = _.$("progress");
 	this.title = _.$("title");
 	this.player = new Thing();
-
-	_.$$('body')[0].onkeydown = function(e) {
-			var key = e.keyCode || e.which;
-			if (key == 0x26) {
-				self.player.nudge(1);
-			} else if (key == 0x28) {
-				self.player.nudge(-1);
-			}
-	};
 
 	this.seqs = [new Seq("tap up", [
 					new Ball(0, 0),
@@ -367,6 +358,21 @@ window.onload = function() {
 		var game = new Game();
 		Ball.prototype.noise = _.$('h');
 		BadBall.prototype.noise = _.$('l');
+
+		/* some event handlers */
+		_.$$('body')[0].onkeydown = function(e) {
+			var key = e.keyCode || e.which;
+			if (key == 0x26) {
+				game.player.nudge(1);
+			} else if (key == 0x28) {
+				game.player.nudge(-1);
+			}
+		};
+
+		_.$('gamearea').onclick = function(e) {
+			console.log(e.clientY);
+			game.player.nudge(e.clientY - this.getClientRects()[0].top < 150 ? 1 : -1);
+		};
 
 		_.$('mute').onclick = function() {
 			_.muted = !_.muted;
