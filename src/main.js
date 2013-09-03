@@ -369,11 +369,6 @@ window.onload = function() {
 			}
 		};
 
-		_.$('gamearea').onclick = function(e) {
-			console.log(e.clientY);
-			game.player.nudge(e.clientY - this.getClientRects()[0].top < 150 ? 1 : -1);
-		};
-
 		_.$('mute').onclick = function() {
 			_.muted = !_.muted;
 			_.$('mute').textContent = _.muted ? 'unmute' : 'mute';
