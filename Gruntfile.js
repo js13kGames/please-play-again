@@ -4,25 +4,28 @@ module.exports = function(grunt) {
 		clean: ["dist/"],
 		copy: {
 			dist: {
-				expand: true,
-				dest: 'dist/',
-				src: '*.ogg'
+				files: [{
+					expand: true,
+					cwd: 'src/',
+					src: '*.ogg',
+					dest: 'dist/'
+				}]
 			}
 		},
 		htmlmin: {
 			dist: {
 				options: {
 					removeComments: true,
-					collapseWhiteSpace: true,
+					collapseWhitespace: true,
 					removeAttributeQuotes: true,
 				},
 				files: {
-					'dist/index.html': 'index.html'
+					'dist/index.html': 'src/index.html',
 				}
 			}
 		},
 		jshint: {
-			all: ['Gruntfile.js', 'main.js'],
+			all: ['Gruntfile.js', 'src/main.js'],
 			options: {
 				browser: true
 			}
@@ -30,7 +33,7 @@ module.exports = function(grunt) {
 		uglify: {
 			dist: {
 				files: {
-					'dist/main.js': 'main.js'
+					'dist/main.js': 'src/main.js'
 				}
 			}
 		},
@@ -44,9 +47,11 @@ module.exports = function(grunt) {
 				},
 				files: [
 					{
+						expand: true,
 						cwd: 'dist',
-						src:['*.js', '*.html', '*.ogg']
-					}
+						src: ['*.js', '*.html', '*.ogg'],
+						dest: ''
+					},
 				]
 			}
 		}
@@ -60,5 +65,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 
-	grunt.registerTask('default', ['copy', 'htmlmin', 'jshint', 'uglify', 'compress']);
+	grunt.registerTask('default', ['clean', 'copy', 'htmlmin', 'jshint', 'uglify', 'compress']);
 };
